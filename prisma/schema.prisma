@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model TestUser {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  age            Int
+  email          String          @unique
+  isAdmin        Boolean
+  largeNumber    BigInt
+  prefrences     Json
+  writtenPosts   Post[]          @relation("WrittenPosts")
+  favoritePosts  Post[]          @relation("FavoritePosts")
+  UserPreference UserPreference?
+  //@@index([email]) // for sorting and performance
+  // @@id([title, authorId]) It represents two primary key in the model in relational databases.
+
+  // unique constraints only 2 user can exists with same age and name property 
+  @@unique([age, name])
+}
+
+model Post {
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  rating        Float
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  author        TestUser   @relation("WrittenPosts", fields: [authorId], references: [id])
+  authorId      String     @db.ObjectId
+  favoritedBy   TestUser?  @relation("FavoritePosts", fields: [favoritedById], references: [id])
+  favoritedById String?    @db.ObjectId
+  categories    Category[] @relation(fields: [categoryIDs], references: [id])
+  categoryIDs   String[]   @db.ObjectId
+}
+
+model Category {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  name    String   @unique
+  posts   Post[]   @relation(fields: [postIDs], references: [id])
+  postIDs String[] @db.ObjectId
+}
+
+model UserPreference {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  emailUpdates Boolean
+  user         TestUser @relation(fields: [userId], references: [id])
+  userId       String   @unique @db.ObjectId
+}
+
+enum Role {
+}
