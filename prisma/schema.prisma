@@ -9,12 +9,12 @@ datasource db {
 
 model TestUser {
   id             String          @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  age            Int
-  email          String          @unique
-  isAdmin        Boolean
-  largeNumber    BigInt
-  prefrences     Json
+  name           String?
+  age            Int?
+  email          String?         @unique
+  role           Role?           @default(USER)
+  largeNumber    BigInt?
+  prefrences     Json?
   writtenPosts   Post[]          @relation("WrittenPosts")
   favoritePosts  Post[]          @relation("FavoritePosts")
   UserPreference UserPreference?
@@ -53,4 +53,6 @@ model UserPreference {
 }
 
 enum Role {
+  USER
+  ADMIN
 }
